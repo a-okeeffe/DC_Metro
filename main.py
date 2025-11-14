@@ -31,18 +31,10 @@ def get_stations(line):
 
 
 # prints the name, code, lines, and station
-def list_stations(stations):
-
-    for station in stations:
-        lines = [station['LineCode1']]
-        if station['LineCode2']:
-            lines.append(station['LineCode2'])
-        if station['LineCode3']:
-            lines.append(station['LineCode3'])
-        if station['LineCode4']:
-            lines.append(station['LineCode4'])
-        print(f"\nStation: {station['Name']} ({station['Code']})\nLine(s): {lines}\nAddress: {station['Address']['Street']}, {station['Address']['City']}, {station['Address']['State']}")
-
+def list_stations(stations_df):
+    df_copy = stations_df[['Code', 'Name', 'Address']].copy(deep=True)
+    print(df_copy)
+    
 # prints a map of the given metro stations 
 def print_station_map(stations):
     for station in stations:
@@ -54,16 +46,12 @@ stations = []
 
 for line in linecodes:
     stations = stations + get_stations(line)
-
-# cuts out duplicate stations
-unique_stations = []
-seen_stations = []
-for i in range(len(stations)):
-    cur_stat_code = stations[i]['Code']
-    if not(cur_stat_code in seen_stations):
-        seen_stations.append(cur_stat_code)
-        unique_stations.append(stations[i])
+# pandas dataframe implementation. Easier to work with + removes duplicates
+df = pd.DataFrame(stations)
+#  fix the addresses from being a separate object
+addies = pd.json_normalize(df.Address)
+df = pd.concat([df, addies], axis=1)
+df = df.drop('Address', axis = 1)
+print(df.info())
 
 
-stations = unique_stations
-#list_stations(stations)
