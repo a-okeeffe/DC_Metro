@@ -10,9 +10,6 @@ headers = {'api_key': api_key}
 #rail_req = 'Rail.svc/json/jStationsRD'
 #train_req = 'TrainPositions/TrainPositions?contentType={json}'
 
-# Specific codes for each metro line
-linecodes = ['RD', 'YL', 'GR', 'BL', 'OR', 'SV']
-
 # returns a list of station names/info for a given line
 def get_stations(line):
     url = 'http://api.wmata.com/Rail.svc/json/jStations?LineCode='
@@ -29,24 +26,9 @@ def get_stations(line):
         print('still not working - ', response.status_code)
         return None
 
-
-# prints the name, code, lines, and station
-def list_stations(stations_df):
-    df_copy = stations_df[['Code', 'Name', 'Address']].copy(deep=True)
-    print(df_copy)
-    
-# prints a map of the given metro stations 
-def print_station_map(df):
-    # set up the scatterplot with appropriate axis scales
-    plt.scatter(df['Lon'], df['Lat'])
-    #list of line codes with associated colors
-    lines = [('RD', 'red'), ('YL', 'yellow'), ('GR', 'green'), ('BL', 'blue'), ('OR', 'orange'), ('SV', 'grey')]
-    for line in lines:
-        coords = df[(df['LineCode1'] == line[0]) | (df['LineCode2'] == line[0]) | (df['LineCode3'] == line[0])][['Lat','Lon']]
-        plt.scatter(coords['Lon'], coords['Lat'], color=line[1])
-    plt.show()
-
 def get_all_stations():
+    # Specific codes for each metro line
+    linecodes = ['RD', 'YL', 'GR', 'BL', 'OR', 'SV']
     stations = []
 
     for line in linecodes:
@@ -59,6 +41,28 @@ def get_all_stations():
     df = df.drop('Address', axis = 1)
 
     return df
+
+# prints the name, code, lines, and station
+def list_stations(stations_df):
+    df_copy = stations_df[['Code', 'Name', 'Street', 'City', 'State']].copy(deep=True)
+    for i, row in df_copy.iterrows():
+        print(f'Station: {row['Name']}')
+        print(f'Address: {row['Street']}, {row['City']}, {row['State']}')
+        print('---')
+    
+# prints a map of the given metro stations 
+def print_station_map(df):
+    # set up the scatterplot with appropriate axis scales
+    plt.scatter(df['Lon'], df['Lat'])
+    #list of line codes with associated colors
+    lines = [('RD', 'red'), ('YL', 'yellow'), ('GR', 'green'), ('BL', 'blue'), ('OR', 'orange'), ('SV', 'grey')]
+    for line in lines:
+        coords = df[(df['LineCode1'] == line[0]) | (df['LineCode2'] == line[0]) | (df['LineCode3'] == line[0])][['Lat','Lon']]
+        plt.scatter(coords['Lon'], coords['Lat'], color=line[1])
+    plt.show()
+
+if __name__ == '__main__':
+    list_stations(get_all_stations())
 
 
 
