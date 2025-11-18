@@ -1,6 +1,6 @@
 import requests
 import json
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 api_key = '91421952b2724860be5b514ccfdf48db'  # personal API Key
@@ -52,6 +52,17 @@ df = pd.DataFrame(stations)
 addies = pd.json_normalize(df.Address)
 df = pd.concat([df, addies], axis=1)
 df = df.drop('Address', axis = 1)
-print(df.info())
 
 
+
+# PRINT LOOP
+plt.scatter(df['Lon'], df['Lat'])
+#color = '0.1'
+lines = [('RD', 'red'), ('YL', 'yellow'), ('GR', 'green'), ('BL', 'blue'), ('OR', 'orange'), ('SV', 'grey')]
+for line in lines:
+    coords = df[(df['LineCode1'] == line[0]) | (df['LineCode2'] == line[0]) | (df['LineCode3'] == line[0])][['Lat','Lon']]
+    plt.scatter(coords['Lon'], coords['Lat'], color=line[1])
+    #plt.plot(coords['Lon'], coords['Lat'], color=line[1])
+
+#plt.autoscale()
+plt.show()
